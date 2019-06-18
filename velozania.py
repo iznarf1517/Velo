@@ -20,22 +20,28 @@ screen.fill(WHITE)
 
 pygame.display.set_caption('VeloZania')
 
-
 # Entities
-# Text Renderer
-
 
 # der Radler
 class Cycler(pygame.sprite.Sprite):
-    # Startkoordinaten
+    # Startkoordinaten + Groesse
     x_cord = 40
     y_cord = 350
+
     width = 100
     height = 70
 
-    def __init__(self):
+    # Inizialisierung des Radlers
+    ## radwahl wird von veloMenu übergeben // bisher ändert sich bloss das Aussehen des Rads
+    ### vielleicht sollten wir die Geschwindigkeit hier mitemplementieren
+    def __init__(self, radwahl):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('images/Cycler.png')
+        if radwahl == "rennrad":
+            self.image = pygame.image.load('images/Cycler.png')
+        elif radwahl == "holland":
+            self.image = pygame.image.load('images/Cycler2.png')
+        else:
+            self.image = pygame.image.load('images/Cycler3.png')
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
         self.rect = self.image.get_rect()
 
@@ -146,7 +152,9 @@ car = Auto('images/redcar.png', AUTO_WIDTH, AUTO_HEIGHT, 7)
 lkw = Auto('images/truck.png', AUTO_WIDTH, AUTO_HEIGHT, 6)
 bus = Auto('images/english-bus.png', (AUTO_WIDTH * 2), AUTO_HEIGHT, 5)
 
-cycler = Cycler()
+# Inizialisierung des Radlers mit Startbildschirm und Radlerauswahl
+cycler = Cycler(main_menu(screen, SIZE_WIDTH))
+
 bridge = BackgroundElemente('images/bruecke.png', 400, 100, False)
 house_1 = BackgroundElemente('images/cartoon-houses-clipart-631895.png', 100, 100, True)
 baum_1 = BackgroundElemente('images/cottonwood.png', 100, 100, True)
@@ -169,12 +177,12 @@ sprite_group.add(house_2)
 # noch ungenutzt
 pygame.time.set_timer(USEREVENT, 200)
 keepGoing = True
+
 # Leben
 lifePoints = 3
 
 # Loop
 while keepGoing:
-
     # Timer
     FPS = 30
     fpsClock = pygame.time.Clock()
@@ -182,9 +190,6 @@ while keepGoing:
     fpsClock.tick(FPS)
 
     # Event Handling
-    ## Startmenü (kleiner Bug -> zum Anfang alle Gebäude auf einem Haufen // werde noch fixen
-    main_menu(screen, SIZE_WIDTH)
-
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
