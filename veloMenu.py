@@ -5,6 +5,8 @@ GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 menu = True
+music = "off"
+sounds = "off"
 
 # hier beliebige Schriftart runterladen und in den Ordner packen // eventuell ein Bild als Logo?
 # Game Font
@@ -26,8 +28,8 @@ def main_menu(surface, width, raeder=("dreirad", "stadtrad", "rennrad")):
     zeiger = 0
     folge = 0
     selected_rad = raeder[zeiger]
-    music = "off"
-    sounds = "off"
+    global music
+    global sounds
 
     while menu:
 
@@ -214,3 +216,15 @@ def gameover_menu(score, surface, gameover):
         surface.blit(text_quit, (800 / 2 - (quit_rect[2] / 2), 360))
         pygame.display.update()
         pygame.display.set_caption("VeloZonia")
+
+def is_music ():
+    if music == 'on':
+        return True
+    else:
+        return False
+
+def is_sound():
+    if sounds == 'on':
+        return True
+    else:
+        return False

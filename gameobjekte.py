@@ -90,9 +90,3 @@ class BackgroundElemente(pygame.sprite.Sprite):
 
     def update(self):
         self.rect = (self.x_cord, self.y_cord)
-
-
-
-
-
-

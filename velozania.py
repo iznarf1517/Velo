@@ -30,8 +30,8 @@ class Cycler(pygame.sprite.Sprite):
     x_cord = 40
     y_cord = 350
 
-    width = 100
-    height = 70
+    width = 70
+    height = 50
 
     # Inizialisierung des Radlers
     ## radwahl wird von veloMenu übergeben // bisher ändert sich bloss das Aussehen des Rads
@@ -43,7 +43,7 @@ class Cycler(pygame.sprite.Sprite):
             self.image = pygame.image.load('images/dreirad.png')
             cycler_speed = 1
         elif radwahl == "stadtrad":
-            self.image = pygame.image.load('images/stadtrad.png')
+            self.image = pygame.image.load('images/normrad.png')
             cycler_speed = 2
         else:
             self.image = pygame.image.load('images/rennrad.png')
@@ -112,7 +112,6 @@ fpsClock = pygame.time.Clock()
 time = pygame.time.get_ticks()
 fpsClock.tick(FPS)
 
-
 cycler = Cycler(main_menu(screen, SIZE_WIDTH))
 
 # Grundeinheiten des AutoElements, darauf beziehen sich alle anderen AutoElemente
@@ -157,21 +156,42 @@ collision = False
 gameover = False
 keepGoing = True
 lifePoints = 3
-# cycler_speed = 1
 
+# musik an und aus
+if (is_music()):
+    musik = pygame.mixer.music
+    musik.load('sounds/GameMusik.mp3')
+    musik.play()
 
+# game Musik
+# pygame.mixer.music.load('Sounds/GameMusik.wav')
+# pygame.mixer.music.play()
+tempscore = 1
+temptime = 0
+anzeigedauer = 0
+kollision = False
 # Loop
 while keepGoing:
+
+    if temptime < time:
+        temptime = time
+        tempscore += 1 * cycler_speed / 10
+        print("score", tempscore)
 
     # Timer
     FPS = 30
     fpsClock = pygame.time.Clock()
     time = pygame.time.get_ticks()
     fpsClock.tick(FPS)
+    # Repeat musik
+    if (is_music() and ((musik.get_busy()) == False)):
+        musik.play()
+
+    # game_music.
     # main_menu()
     # cycler_menu()
 
-    score = int((time / 100) * cycler_speed)
+    #  score = int((time / 100) * cycler_speed)
 
     # Event Handling
     for event in pygame.event.get():
@@ -206,7 +226,7 @@ while keepGoing:
     # Bewegen des Radlers
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP]:
-        if Cycler.y_cord >= 100:
+        if Cycler.y_cord >= 115:
             Cycler.y_cord -= 3
     elif keys[pygame.K_DOWN]:
         if Cycler.y_cord <= 380:
@@ -237,13 +257,23 @@ while keepGoing:
             lifePoints -= 1
             for j in autoObj:
                 j.x_cord += 600
-            aktionenBeiKollision()
+                kollision = True
+                anzeigedauer = tempscore + 4
+
             if (lifePoints == 0):
                 lifePoints = 3
                 gameover = True
-                gameover_menu(score, screen, gameover)
+                gameover_menu(int(tempscore), screen, gameover)
+                tempscore = 0
                 main_menu(screen, SIZE_WIDTH)
+                kollision = False
 
+    # Anzeige bei Lebenverlust
+    if kollision == True:
+        if tempscore <= anzeigedauer:
+            aktionenBeiKollision()
+        else:
+            kollision = False
 
     # Zählt Anzahl um zuverhinder, dass in der AutoObjekt sich selbst als kollidierend ansieht
     count = -1
@@ -253,20 +283,24 @@ while keepGoing:
         autoIndex = j.collidelist(rectAutoCollision)
         if (count != autoIndex):
             if (count == 0):
-                bus.y_cord += 10
-                break
+                if bus.y_cord < 500:
+                    bus.y_cord += 10
+                    break
             elif (count == 1):
-                lkw.y_cord += 10
-                break
+                if bus.y_cord < 500:
+                    lkw.y_cord += 10
+                    break
             elif (count == 2):
-                car.y_cord -= 10
-                break
+                if car.y_cord > 150:
+                    car.y_cord -= 10
+                    break
             elif (count == 3):
-                police.y_cord -= 10
-                break
+                if police.y_cord > 150:
+                    police.y_cord -= 10
+                    break
 
     showLeben(lifePoints)
-    showScore(score)
+    showScore(int(tempscore))
     sprite_group.update()
     sprite_group.draw(screen)
 
