@@ -7,6 +7,10 @@ BLACK = (0, 0, 0)
 menu = True
 music = "off"
 sounds = "off"
+raeder=("dreirad", "stadtrad", "rennrad")
+zeiger = 0
+selected_rad = raeder[zeiger]
+
 
 # hier beliebige Schriftart runterladen und in den Ordner packen // eventuell ein Bild als Logo?
 # Game Font
@@ -22,14 +26,14 @@ def text_format(message, textFont, textSize, textColor):
 
 
 # startmenu
-def main_menu(surface, width, raeder=("dreirad", "stadtrad", "rennrad")):
+def main_menu(surface, width):
     global menu
     selected = "start"
-    zeiger = 0
     folge = 0
-    selected_rad = raeder[zeiger]
+    global selected_rad
     global music
     global sounds
+    global zeiger
 
     while menu:
 
@@ -54,7 +58,7 @@ def main_menu(surface, width, raeder=("dreirad", "stadtrad", "rennrad")):
                     if event.key == pygame.K_RETURN:
                         if selected == "start":
                             if folge == 0:
-                                print("Start")
+                                print("folge")
                                 folge = 1
                             else:
                                 menu = False
@@ -168,6 +172,7 @@ def main_menu(surface, width, raeder=("dreirad", "stadtrad", "rennrad")):
 
 def gameover_menu(score, surface, gameover):
     global menu
+
     selected = "start"
 
     while gameover:
@@ -228,3 +233,8 @@ def is_sound():
         return True
     else:
         return False
+
+def get_Radtyp():
+    return selected_rad
+
+

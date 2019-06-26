@@ -66,6 +66,8 @@ class Background(pygame.sprite.Sprite):
         self.bg_grau = pygame.draw.rect(screen, STREET, (0, 150, 800, 300))
 
 
+
+
 # Funktion zum loopen der AutoObjekte
 def loopenAuto(objTupel):
     index = randint(0, (len(objTupel) - 1))
@@ -85,10 +87,24 @@ def loopenBackgroundElemente(objTupel):
             objTupel[index].y_cord = randint(450, 500)
         objTupel[index].x_cord = randint(800, 1000)
 
+def loopenEnergie(objTupel):
+    index = randint(0, (len(objTupel) - 1))
+    if objTupel[index].x_cord <= -100:
+        objTupel[index].y_cord = randint(200, 400)
+        objTupel[index].x_cord = randint(800, 1200)
+
 
 def aktionenBeiKollision():
 
+
     title = text_format("- 1 Leben", font, 70, BLACK)
+    title_rect = title.get_rect()
+    screen.blit(title, (800 / 2 - (title_rect[2] / 2), 80))
+    keepGoing = True
+
+
+def aktion_bei_Energie():
+    title = text_format("+ 10 Punkte", font, 70, BLACK)
     title_rect = title.get_rect()
     screen.blit(title, (800 / 2 - (title_rect[2] / 2), 80))
 
@@ -108,13 +124,34 @@ def showScore(score):
     screen.blit(title, (700 - (title_rect[2] / 2), 25))
 
 
+def showLevel(level):
+    score_text = 'level ' + str(level)
+    title = text_format(score_text, font, 20, BLACK)
+    title_rect = title.get_rect()
+    screen.blit(title, (100 , 25))
+
+
 FPS = 30
 fpsClock = pygame.time.Clock()
 time = pygame.time.get_ticks()
 fpsClock.tick(FPS)
 
+tempscore = 1
+temptime = 0
+anzeigedauer = 0
+auto_kollision = False
 
-cycler = Cycler(main_menu(screen, SIZE_WIDTH))
+
+collision = False
+gameover = False
+keepGoing = True
+lifePoints = 3
+count = 1
+
+main_menu(screen, SIZE_WIDTH)
+
+cycler = Cycler(get_Radtyp())
+print(get_Radtyp())
 
 # Grundeinheiten des AutoElements, darauf beziehen sich alle anderen AutoElemente
 AUTO_WIDTH = 100
@@ -134,7 +171,12 @@ house_2 = BackgroundElemente('images/building-houses.png', 150, 100, True)
 cow = BackgroundElemente('images/cow.png', 70, 50, True)
 baum_2 = BackgroundElemente('images/forest.png', 150, 150, True)
 
+banane = Energie('images/banana.png', 30, 30, 2000)
+wasser = Energie('images/bottle.png', 30, 30, 3000)
+
 sprite_group = pygame.sprite.Group()
+sprite_group.add(banane)
+sprite_group.add(wasser)
 sprite_group.add(car)
 sprite_group.add(cycler)
 sprite_group.add(lkw)
@@ -154,34 +196,61 @@ sprite_group.add(baum_2)
 # noch ungenutzt
 pygame.time.set_timer(USEREVENT + 1, 200)
 
-collision = False
-gameover = False
-keepGoing = True
-lifePoints = 3
+
+
+
+
+crash_sound = pygame.mixer.Sound("sounds/car-crash.wav")
+energie_sound = pygame.mixer.Sound("sounds/energie.wav")
+
+musik = pygame.mixer.music
 
 #musik an und aus
 if (is_music()):
-    musik = pygame.mixer.music
+
     musik.load('sounds/GameMusik.mp3')
-    musik.play()
+    musik.play(-1)
 
 # game Musik
 #pygame.mixer.music.load('Sounds/GameMusik.wav')
 #pygame.mixer.music.play()
 
+tempscore = 1
+temptime = 0
+anzeigedauer = 0
+auto_kollision = False
+energie_kollision = False
+weitereRunde = False
+level = 1
+
 
 # Loop
 while keepGoing:
 
+    if weitereRunde:
+        sprite_group.remove(cycler)
+        cycler = Cycler(get_Radtyp())
+        sprite_group.add(cycler)
+        if (is_music()):
+            musik = pygame.mixer.music
+            musik.load('sounds/GameMusik.mp3')
+            musik.play(-1)
+        else:
+            musik.pause()
+        weitereRunde = False
+
+
+
+    if temptime < time:
+        temptime = time
+        tempscore += 1 * cycler_speed / 10
+        print("score", tempscore)
 
     # Timer
     FPS = 30
     fpsClock = pygame.time.Clock()
     time = pygame.time.get_ticks()
     fpsClock.tick(FPS)
-    #Repeat musik
-    if (is_music() and ((musik.get_busy())==False)):
-       musik.play()
 
 
 
@@ -189,7 +258,6 @@ while keepGoing:
     # main_menu()
     # cycler_menu()
 
-    score = int((time / 100) * cycler_speed)
 
     # Event Handling
     for event in pygame.event.get():
@@ -199,13 +267,18 @@ while keepGoing:
 
         # Tupel an AutoObjekten:
         autoObj = (car, lkw, bus, police)
-        if ((time % 8) == 0):
+        if ((time % (9-level)) == 0):
             loopenAuto(autoObj)
 
         # Tupel für BackgroundElemente
         backgroundObj = (house_1, baum_1, house_2, cow)
         if ((time % 12) == 0):
             loopenBackgroundElemente(backgroundObj)
+
+        energieObj = (banane, wasser)
+        if ((time % 20) == 0):
+            loopenEnergie(energieObj)
+
 
     print(cycler_speed)
     car.bewegen(cycler_speed)
@@ -218,6 +291,8 @@ while keepGoing:
     house_2.bewegen(cycler_speed)
     cow.bewegen(cycler_speed)
     baum_2.bewegen(cycler_speed)
+    banane.bewegen(cycler_speed)
+    wasser.bewegen(cycler_speed)
     # refresh des Hintergrunds
     bg = Background()
 
@@ -244,6 +319,11 @@ while keepGoing:
     # Rect Tupel für Auto Objects
     rectAutoCollision = (rectBusCollision, rectLKWCollision, rectCarCollision, rectPoliceCollison)
 
+    rectBananaCollision = pygame.Rect(banane.x_cord, banane.y_cord, banane.width, banane.height)
+    rectWaterCollision = pygame.Rect (wasser.x_cord, wasser.y_cord, wasser.width, wasser.height)
+
+    rectEnergieCollision = (rectBananaCollision, rectWaterCollision)
+
     # Rect für Cycler
     rectCyclerCollison = pygame.Rect(cycler.x_cord - PIC_FRAME, (cycler.y_cord + PIC_FRAME), cycler.width - PIC_FRAME,
                                      (cycler.height - PIC_FRAME * 2))
@@ -255,13 +335,26 @@ while keepGoing:
             lifePoints -= 1
             for j in autoObj:
                 j.x_cord += 600
-            aktionenBeiKollision()
+                auto_kollision = True
+                anzeigedauer = tempscore + 4
+                if(is_sound()):
+                    crash_sound.play()
+
             if (lifePoints == 0):
                 lifePoints = 3
                 gameover = True
-                gameover_menu(score, screen, gameover)
+                gameover_menu(int(tempscore), screen, gameover)
+                tempscore = 0
+                weitereRunde =True
                 main_menu(screen, SIZE_WIDTH)
+                auto_kollision = False
 
+        # Anzeige bei Lebenverlust
+    if auto_kollision == True:
+        if tempscore <= anzeigedauer:
+            aktionenBeiKollision()
+        else:
+            auto_kollision = False
 
     # Zählt Anzahl um zuverhinder, dass in der AutoObjekt sich selbst als kollidierend ansieht
     count = -1
@@ -283,8 +376,42 @@ while keepGoing:
                 police.y_cord -= 10
                 break
 
+
+    if rectCyclerCollison.colliderect(rectBananaCollision):
+            tempscore += 10
+            energie_kollision = True
+            anzeigedauer = tempscore + 4
+            if(is_sound()):
+                energie_sound.play()
+            banane.x_cord = -100
+
+    if rectCyclerCollison.colliderect(rectWaterCollision):
+            tempscore += 10
+            energie_kollision = True
+            anzeigedauer = tempscore + 4
+            if(is_sound()):
+                energie_sound.play()
+            wasser.x_cord = -100
+
+    if energie_kollision == True:
+        if tempscore <= anzeigedauer:
+            aktion_bei_Energie()
+        else:
+            energie_kollision = False
+
+
+
+    if tempscore<100:
+        level = 1
+    if tempscore>100:
+        level = 2
+    if tempscore>300:
+        level = 3
+
+
     showLeben(lifePoints)
-    showScore(score)
+    showScore(int(tempscore))
+    showLevel(level)
     sprite_group.update()
     sprite_group.draw(screen)
 
