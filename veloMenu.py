@@ -24,7 +24,6 @@ def text_format(message, textFont, textSize, textColor):
 
     return newText
 
-
 # startmenu
 def main_menu(surface, width):
     global menu
@@ -58,7 +57,6 @@ def main_menu(surface, width):
                     if event.key == pygame.K_RETURN:
                         if selected == "start":
                             if folge == 0:
-                                print("folge")
                                 folge = 1
                             else:
                                 menu = False
@@ -66,15 +64,11 @@ def main_menu(surface, width):
                             pygame.quit()
                             quit()
                         if selected == "music":
-                            # music_on_off()
-                            print("music_on_off")
                             if music == "off":
                                 music = "on"
                             else:
                                 music = "off"
                         if selected == "sounds":
-                            # music_on_off()
-                            print("sounds_on_off")
                             if sounds == "off":
                                 sounds = "on"
                             else:
@@ -91,19 +85,19 @@ def main_menu(surface, width):
             if music == "on" and selected == "music":
                 text_music = text_format("MUSIC ON", font, 25, (255, 0, 0))
             elif selected == "music":
-                text_music = text_format("MUSIC", font, 25, WHITE)
+                text_music = text_format("MUSIC OFF", font, 25, WHITE)
             elif music == "on":
                 text_music = text_format("MUSIC ON", font, 25, (155,0,0))
             else:
-                text_music = text_format("MUSIC", font, 25, BLACK)
+                text_music = text_format("MUSIC OFF", font, 25, BLACK)
             if sounds == "on" and selected == "sounds":
                 text_sounds = text_format("SOUNDS ON", font, 25, (255, 0, 0))
             elif selected == "sounds":
-                text_sounds = text_format("SOUNDS", font, 25, WHITE)
+                text_sounds = text_format("SOUNDS OFF", font, 25, WHITE)
             elif sounds == "on":
                 text_sounds = text_format("SOUNDS ON", font, 25, (155,0,0))
             else:
-                text_sounds = text_format("SOUNDS", font, 25, BLACK)
+                text_sounds = text_format("SOUNDS OFF", font, 25, BLACK)
 
             start_rect = text_start.get_rect()
             quit_rect = text_quit.get_rect()
@@ -118,8 +112,6 @@ def main_menu(surface, width):
 
             surface.blit(text_music, (600, 340))
             surface.blit(text_sounds, (600, 370))
-
-
 
         else:
             for event in pygame.event.get():
@@ -142,7 +134,6 @@ def main_menu(surface, width):
                         else:
                             menu = False
                             return selected_rad
-                            print(selected_rad)
             # Main Menu UI
 
             if selected_rad == "dreirad":
@@ -172,7 +163,6 @@ def main_menu(surface, width):
 
 def gameover_menu(score, surface, gameover):
     global menu
-
     selected = "start"
 
     while gameover:
@@ -187,7 +177,6 @@ def gameover_menu(score, surface, gameover):
                     selected = "quit"
                 if event.key == pygame.K_RETURN:
                     if selected == "start":
-                        print("Start")
                         gameover = False
                         menu = True
 
