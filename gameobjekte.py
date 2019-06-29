@@ -3,34 +3,11 @@ import pygame, sys
 from pygame.locals import *
 from random import randint
 
-
-
-
-# der Radler
-class Cycler(pygame.sprite.Sprite):
-    # Startkoordinaten
-    x_cord = 40
-    y_cord = 350
-    width = 70
-    height = 50
-
-    def __init__(self, bild):
-        self.bild = bild
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(self.bild)
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
-        self.rect = self.image.get_rect()
-
-        self.rect.left = self.x_cord
-        self.rect.top = self.y_cord
-
-    def update(self):
-        self.rect = (self.x_cord, self.y_cord)
-
+#AutoElemente
 class Auto(pygame.sprite.Sprite):
     # Startkoordinaten
     x_cord = randint(900, 3000)
-    y_cord = randint(200, 400)
+    y_cord = randint(240, 400)
 
     def __init__(self, bild, width, height, speed, angel):
         self.pic = bild
@@ -56,9 +33,10 @@ class Auto(pygame.sprite.Sprite):
     def update(self):
         self.rect = (self.x_cord, self.y_cord)
 
-
+#Background Elemente
 class BackgroundElemente(pygame.sprite.Sprite):
-    x_cord = 700
+
+    x_cord = randint(0, 800)
     y_cord = 100
     angel = 90
 
@@ -92,7 +70,30 @@ class BackgroundElemente(pygame.sprite.Sprite):
         self.rect = (self.x_cord, self.y_cord)
 
 
+#EnergieObjekte
+class Energie(pygame.sprite.Sprite):
 
+    y_cord = randint(240, 400)
 
+    def __init__(self, bild, height, width, x_cord):
+        self.bild = bild
+        self.width = width
+        self.height = height
+        self.x_cord = x_cord
+        #Ist objekt ein Bildelement für den Rand
 
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load(self.bild)
+        self.image = pygame.transform.scale(self.image, (self.height, self.width))
+        #self.image = pygame.transform.rotate(self.image, self.angel)
+        self.rect = self.image.get_rect()
 
+        self.rect.left = self.x_cord
+        self.rect.top = self.y_cord
+
+    def bewegen(self, cycler_speed):
+        if self.x_cord > -200:
+            self.x_cord -= (2+cycler_speed)
+
+    def update(self):
+        self.rect = (self.x_cord, self.y_cord)
